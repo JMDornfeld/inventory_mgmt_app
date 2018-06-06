@@ -5,7 +5,7 @@ def menu(username, products_count):
     # this is a multi-line string, also using preceding `f` for string interpolation
     menu = f"""
     -----------------------------------
-     INVENTORY MANAGEMENT APPLICATION
+    INVENTORY MANAGEMENT APPLICATION
     -----------------------------------
     Welcome {username}!
     There are {products_count} products in the database.
@@ -17,25 +17,27 @@ def menu(username, products_count):
         'Update'  | Edit an existing product.
         'Destroy' | Delete an existing product.
         'Reset'   | Reset the CSV file.
-    Please select an operation: """
+    Please select an operation: """ # end of multi- line string. also using string interpolation
     return menu
 
 def read_products_from_file(filename="products.csv"):
     filepath = os.path.join(os.path.dirname(__file__), "db", filename)
+    #print(f"READING PRODUCTS FROM FILE: '{filepath}'")
     products = []
 
     with open(filepath, "r") as csv_file:
-        reader = csv.DictReader(csv_file)
+        reader = csv.DictReader(csv_file) # assuming your CSV has headers, otherwise... csv.reader(csv_file)
         for row in reader:
-
+            #print(row["name"], row["price"])
             products.append(dict(row))
     return products
 
 def write_products_to_file(filename="products.csv", products=[]):
     filepath = os.path.join(os.path.dirname(__file__), "db", filename)
+    #print(f"OVERWRITING CONTENTS OF FILE: '{filepath}' \n ... WITH {len(products)} PRODUCTS")
     with open(filepath, "w") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=["id","name","aisle","department","price"])
-        writer.writeheader()
+        writer.writeheader() # uses fieldnames set above
         for p in products:
             writer.writerow(p)
 
@@ -52,13 +54,16 @@ def auto_incremented_id(products):
        return max(product_ids) + 1
 
 def run():
-
+    # First, read products from file...
     products = read_products_from_file()
 
+    # Then, prompt the user to select an operation...
     number_of_products = len(products)
     my_menu = menu(username="JMDORNFELD", products_count=20)
     operation = input(my_menu)
+    #print("YOU CHOSE: " + operation)
 
+    # Then, handle selected operation: "List", "Show", "Create", "Update", "Destroy" or "Reset"...
     operation = operation.title()
 
     if operation == "List":
@@ -68,7 +73,7 @@ def run():
 
     elif operation == "Show":
         print("SHOWING A PRODUCT")
-        product_id = input("What is the identifier of the product you want to display: ")
+        product_id = input("What is the identifier  of the product you want to display: ")
         matching_products = [p for p in products if int(p["id"]) == int(product_id)]
         matching_product = matching_products[0]
         print(matching_product)
@@ -76,52 +81,64 @@ def run():
     elif operation == "Create":
         new_id = auto_incremented_id(products)
         new_product = {
-            "new_id", "new_product_name", "new_name", "new_aisle", "new_department", "new_price"
-        }
-        new_id = input("   What is the new product id?   ")
-        new_product_name = input("   What is the new product name?   ")
-        new_aisle = input("   Where is the new product located (by aisle)?   ")
-        new_department = input("   What department is the new product located in?   ")
-        new_price = input("  What is the new product's price?   ")
+            "id": new_id,
+            "name": "new product name",
+            "aisle": "new aisle",
+            "department": "new department"
+            }
+        new_name = input("  Please enter the new product name:   ")
+        new_aisle = input("  Please enter the new product aisle:   ")
+        new_department = input("   Please enter the new product department:   ")
+        new_price = input("   Please enter the new product price:   ")
         products.append(new_product)
-        print("-----------------------------------")
+        print("---------------------------")
         print("CREATING A NEW PRODUCT")
-        print(new_id, new_product_name, new_aisle, new_department, new_price)
-        print("-----------------------------------")
+        print(new_id, new_name, new_aisle, new_department,  new_price)
+        print("---------------------------")
 
     elif operation == "Update":
         product_id = input("What is the identifier of the product you want to display: ")
         matching_products = [p for p in products if int(p["id"]) == int(product_id)]
         matching_product = matching_products[0]
         print(matching_product)
-        update_product_name = input("   What is the new product name? If no change, please type in the original product name above:   ")
-        update_aisle = input("   Where is the new product located (by aisle)?If no change, please type in the original product aisle above:  ")
-        update_department = input("   What department is the new product located in? If no change, please type in the original product department above:  ")
-        update_price = input("   What is the new product's price? If no change, please type in the original product price above:   ")
-        matching_product["name"] = update_product_name
-        matching_product["aisle"] = update_aisle
-        matching_product["department"] = update_department
+
+        update_product = {
+            "name": "updated product name",
+            "aisle": "new product aisle",
+            "department": "new product department",
+            "price": "new product price"
+            }
+        update_name = input("  Please enter the updated product name:   ")
+        update_aisle = input("  Please enter the updated product aisle:   ")
+        update_department = input("   Please enter the new product department:   ")
+        update_price = input("   Please enter the new product price:   ")
         matching_product["price"] = update_price
-        print("-----------------------------------")
+        print("---------------------------")
         print("UPDATING A PRODUCT")
-        print("-----------------------------------")
-        print(matching_product)
+        print("---------------------------")
 
     elif operation == "Destroy":
         product_id = input("What is the identifier of the product you want to display: ")
         matching_products = [p for p in products if int(p["id"]) == int(product_id)]
         matching_product = matching_products[0]
         del products[products.index(matching_product)]
+        print("---------------------------")
         print("DELETING A PRODUCT")
+        print("---------------------------")
 
     elif operation == "Reset":
         reset_products_file()
-        return
+        return # exit the program early to prevent execution of the write_products_to_file() function below (because we don't want to write the original list of products to file in situations where we are instead trying to reset the file)
     else:
-        print("OOPS, unrecognized input, please select one of 'List', 'Show', 'Create', 'Update', 'Destroy' or 'Reset'")
+        print("---------------------------")
+        print("---------------------------")
+        print("---------------------------")
+        print("OOPS, unrecognized operation, please select one of 'List', 'Show', 'Create', 'Update', 'Destroy' or 'Reset'")
 
-
+    # Finally, save products to file so they persist after script is done...
     write_products_to_file(products=products)
 
+# only prompt the user for input if this script is run from the command-line
+# this allows us to import and test this application's component functions
 if __name__ == "__main__":
     run()
