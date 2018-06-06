@@ -44,15 +44,12 @@ def reset_products_file(filename="products.csv", from_filename="products_default
     products = read_products_from_file(from_filename)
     write_products_to_file(filename, products)
 
-#def auto_incremented_id(products):
-#    #return int(products[-1]["id"]) + 1
-#    if len(products) == 0:
-#        return 1
-#    else:
-#        all_ids = [int(p["id"]) for p in products]
-#        max_id = max(all_ids)
-#        next_id = max_id + 1
-#        return next_id
+def auto_incremented_id(products):
+   if len(products) == 0:
+       return 1
+   else:
+       product_ids = [int(p["id"]) for p in products]
+       return max(product_ids) + 1
 
 def run():
 
